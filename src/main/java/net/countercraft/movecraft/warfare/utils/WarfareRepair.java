@@ -7,6 +7,7 @@ import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
@@ -88,7 +89,7 @@ public class WarfareRepair {
             BlockMask mask = new BlockMask(source, baseBlockSet);
             copy.setSourceMask(mask);
             Operations.completeLegacy(copy);
-            ClipboardWriter writer = ClipboardFormats.findByFile(repairStateFile).getWriter(new FileOutputStream(repairStateFile, false));
+            ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(new FileOutputStream(repairStateFile, false));
             writer.write(clipboard);
             writer.close();
             return true;
