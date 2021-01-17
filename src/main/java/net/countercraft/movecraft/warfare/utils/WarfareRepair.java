@@ -1,22 +1,23 @@
 package net.countercraft.movecraft.warfare.utils;
 
 import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.blocks.BaseBlock;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
 import com.sk89q.worldedit.function.mask.BlockMask;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
-import com.sk89q.worldedit.world.registry.WorldData;
+import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedPolygonalRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -49,9 +50,8 @@ public class WarfareRepair {
     public boolean saveRegionRepairState(World world, ProtectedRegion region) {
         File saveDirectory = new File(plugin.getDataFolder(), "AssaultSnapshots");
         com.sk89q.worldedit.world.World weWorld = new BukkitWorld(world);
-        WorldData worldData = weWorld.getWorldData();
-        Vector weMinPos = region.getMinimumPoint();
-        Vector weMaxPos = region.getMaximumPoint();
+        BlockVector3 weMinPos = region.getMinimumPoint();
+        BlockVector3 weMaxPos = region.getMaximumPoint();
         if (!saveDirectory.exists()) {
             saveDirectory.mkdirs();
         }
@@ -73,8 +73,8 @@ public class WarfareRepair {
                     if (block.getType().equals(Material.AIR)) {
                         continue;
                     }
-                    if (Config.AssaultDestroyableBlocks.contains(block.getTypeId())) {
-                        baseBlockSet.add(new BaseBlock(block.getTypeId(), block.getData()));
+                    if (Config.AssaultDestroyableBlocks.contains(block.getType())) {
+                        baseBlockSet.add(BukkitAdapter.asBlockType(block.getType()).getDefaultState().toBaseBlock());
                     }
                 }
             }
@@ -88,8 +88,8 @@ public class WarfareRepair {
             BlockMask mask = new BlockMask(source, baseBlockSet);
             copy.setSourceMask(mask);
             Operations.completeLegacy(copy);
-            ClipboardWriter writer = ClipboardFormat.SCHEMATIC.getWriter(new FileOutputStream(repairStateFile, false));
-            writer.write(clipboard, worldData);
+            ClipboardWriter writer = ClipboardFormats.findByFile(repairStateFile).getWriter(new FileOutputStream(repairStateFile, false));
+            writer.write(clipboard);
             writer.close();
             return true;
 
@@ -103,9 +103,8 @@ public class WarfareRepair {
         File dataDirectory = new File(plugin.getDataFolder(), "AssaultSnapshots");
         File file = new File(dataDirectory, s + ".schematic"); // The schematic file
         com.sk89q.worldedit.world.World weWorld = new BukkitWorld(world);
-        WorldData worldData = weWorld.getWorldData();
         try {
-            return ClipboardFormat.SCHEMATIC.getReader(new FileInputStream(file)).read(worldData);
+            return ClipboardFormats.findByFile(file).getReader(new FileInputStream(file)).read();
 
         } catch (IOException e) {
             e.printStackTrace();
