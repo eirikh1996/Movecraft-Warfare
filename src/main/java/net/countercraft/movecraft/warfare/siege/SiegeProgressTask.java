@@ -1,5 +1,7 @@
 package net.countercraft.movecraft.warfare.siege;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.countercraft.movecraft.Movecraft;
@@ -81,7 +83,7 @@ public class SiegeProgressTask extends SiegeTask {
 
     private void winSiege(@NotNull Player siegeLeader) {
         Bukkit.getPluginManager().callEvent(new SiegeWinEvent(siege));
-        ProtectedRegion controlRegion = Movecraft.getInstance().getWorldGuardPlugin().getRegionManager(siegeLeader.getWorld()).getRegion(siege.getCaptureRegion());
+        ProtectedRegion controlRegion = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(siegeLeader.getWorld())).getRegion(siege.getCaptureRegion());
         DefaultDomain newOwner = new DefaultDomain();
         newOwner.addPlayer(siege.getPlayerUUID());
         controlRegion.setOwners(newOwner);
@@ -128,7 +130,7 @@ public class SiegeProgressTask extends SiegeTask {
 
     private boolean leaderShipInRegion(@NotNull Craft siegeCraft, @NotNull Player siegeLeader) {
         MovecraftLocation mid = siegeCraft.getHitBox().getMidPoint();
-        ProtectedRegion r = Movecraft.getInstance().getWorldGuardPlugin().getRegionManager(siegeLeader.getWorld()).getRegion(siege.getAttackRegion());
+        ProtectedRegion r = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(siegeLeader.getWorld())).getRegion(siege.getAttackRegion());
         return r.contains(mid.getX(), mid.getY(), mid.getZ());
     }
 }
