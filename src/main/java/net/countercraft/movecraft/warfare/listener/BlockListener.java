@@ -1,5 +1,6 @@
 package net.countercraft.movecraft.warfare.listener;
 
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import net.countercraft.movecraft.Movecraft;
@@ -23,9 +24,25 @@ import java.util.Iterator;
 import java.util.List;
 
 public class BlockListener implements Listener {
-    final int[] fragileBlocks = new int[]{26, 34, 50, 55, 63, 64, 65, 68, 69, 70, 71, 72, 75, 76, 77, 93, 94, 96, 131, 132, 143, 147, 148, 149, 150, 151, 171, 323, 324, 330, 331, 356, 404};
     private long lastDamagesUpdate = 0;
-
+    private boolean isFragile(Material type) {
+        return type.name().endsWith("BED") ||
+                type == Material.PISTON_HEAD ||
+                type == Material.LEVER ||
+                type == Material.REPEATER ||
+                type == Material.COMPARATOR ||
+                type.name().endsWith("TORCH") ||
+                type == Material.REDSTONE_WIRE ||
+                type.name().endsWith("SIGN") ||
+                type.name().endsWith("DOOR") ||
+                type == Material.LADDER ||
+                type.name().endsWith("PRESSURE_PLATE") ||
+                type.name().endsWith("BUTTON") ||
+                type == Material.TRIPWIRE_HOOK ||
+                type == Material.TRIPWIRE ||
+                type == Material.DAYLIGHT_DETECTOR ||
+                type.name().endsWith("CARPET") ;
+    }
     @EventHandler(priority = EventPriority.NORMAL)
     public void explodeEvent(EntityExplodeEvent e) {
         List<Assault> assaults = MovecraftWarfare.getInstance().getAssaultManager() != null ? MovecraftWarfare.getInstance().getAssaultManager().getAssaults() : null;
@@ -46,20 +63,15 @@ public class BlockListener implements Listener {
                     continue;
 
                 // first see if it is outside the destroyable area
-                com.sk89q.worldedit.Vector min = assault.getMinPos();
-                com.sk89q.worldedit.Vector max = assault.getMaxPos();
+                BlockVector3 min = assault.getMinPos();
+                BlockVector3 max = assault.getMaxPos();
 
                 if (b.getLocation().getBlockX() < min.getBlockX() ||
                         b.getLocation().getBlockX() > max.getBlockX() ||
                         b.getLocation().getBlockZ() < min.getBlockZ() ||
                         b.getLocation().getBlockZ() > max.getBlockZ() ||
-                        !Config.AssaultDestroyableBlocks.contains(b.getTypeId()) ||
-                        Arrays.binarySearch(fragileBlocks, b.getRelative(BlockFace.SOUTH).getTypeId()) >= 0 ||
-                        Arrays.binarySearch(fragileBlocks, b.getRelative(BlockFace.DOWN).getTypeId()) >= 0 ||
-                        Arrays.binarySearch(fragileBlocks, b.getRelative(BlockFace.UP).getTypeId()) >= 0 ||
-                        Arrays.binarySearch(fragileBlocks, b.getRelative(BlockFace.EAST).getTypeId()) >= 0 ||
-                        Arrays.binarySearch(fragileBlocks, b.getRelative(BlockFace.WEST).getTypeId()) >= 0 ||
-                        Arrays.binarySearch(fragileBlocks, b.getRelative(BlockFace.NORTH).getTypeId()) >= 0) {
+                        !Config.AssaultDestroyableBlocks.contains(b.getType()) ||
+                        isFragile(b.getType())) {
                     i.remove();
                 }
 
@@ -90,4 +102,6 @@ public class BlockListener implements Listener {
             }
         }
     }
+
+
 }

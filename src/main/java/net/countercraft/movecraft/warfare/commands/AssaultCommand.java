@@ -1,7 +1,10 @@
 package net.countercraft.movecraft.warfare.commands;
 
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
+
+import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.countercraft.movecraft.Movecraft;
@@ -51,7 +54,7 @@ public class AssaultCommand implements CommandExecutor{
             return true;
         }
 
-        ProtectedRegion region = Movecraft.getInstance().getWorldGuardPlugin().getRegionManager(player.getWorld()).getRegion(args[0]);
+        ProtectedRegion region = WorldGuard.getInstance().getPlatform().getRegionContainer().get(new BukkitWorld(player.getWorld())).getRegion(args[0]);
         if (region == null) {
             player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Assault - Region Not Found"));
             return true;
@@ -79,23 +82,23 @@ public class AssaultCommand implements CommandExecutor{
         }
 
 
-        Vector min = new Vector(region.getMinimumPoint().getBlockX(), region.getMinimumPoint().getBlockY(), region.getMinimumPoint().getBlockZ());
-        Vector max = new Vector(region.getMaximumPoint().getBlockX(), region.getMaximumPoint().getBlockY(), region.getMaximumPoint().getBlockZ());
+        BlockVector3 min = BlockVector3.at(region.getMinimumPoint().getBlockX(), region.getMinimumPoint().getBlockY(), region.getMinimumPoint().getBlockZ());
+        BlockVector3 max = BlockVector3.at(region.getMaximumPoint().getBlockX(), region.getMaximumPoint().getBlockY(), region.getMaximumPoint().getBlockZ());
 
         if (max.subtract(min).getBlockX() > 256) {
             if (min.getBlockX() < player.getLocation().getBlockX() - 128) {
-                min = min.setX(player.getLocation().getBlockX() - 128);
+                min = min.subtract(128, 0, 0);
             }
             if (max.getBlockX() > player.getLocation().getBlockX() + 128) {
-                max = max.setX(player.getLocation().getBlockX() + 128);
+                max = max.add(128, 0, 0);
             }
         }
         if (max.subtract(min).getBlockZ() > 256) {
             if (min.getBlockZ() < player.getLocation().getBlockZ() - 128) {
-                min = min.setZ(player.getLocation().getBlockZ() - 128);
+                min = min.subtract(0, 0, 128);
             }
             if (max.getBlockZ() > player.getLocation().getBlockZ() + 128) {
-                max = max.setZ(player.getLocation().getBlockZ() + 128);
+                max = max.add(0, 0, 128);
             }
         }
 //			} else {
@@ -113,8 +116,8 @@ public class AssaultCommand implements CommandExecutor{
         final Player taskPlayer = player;
         final World taskWorld = player.getWorld();
         final Long taskMaxDamages = (long) AssaultUtils.getMaxDamages(region);
-        final Vector taskMin = min;
-        final Vector taskMax = max;
+        final BlockVector3 taskMin = min;
+        final BlockVector3 taskMax = max;
         Assault assault = new Assault(region, taskPlayer, taskWorld, taskMaxDamages, taskMin, taskMax);
         final AssaultStartEvent event = new AssaultStartEvent(assault);
         Bukkit.getPluginManager().callEvent(event);
@@ -132,7 +135,7 @@ public class AssaultCommand implements CommandExecutor{
 
                 MovecraftWarfare.getInstance().getAssaultManager().addAssault(assault);
                 Bukkit.getPluginManager().callEvent(new AssaultBeginEvent(assault));
-                tRegion.setFlag(DefaultFlag.TNT, StateFlag.State.ALLOW);
+                tRegion.setFlag(Flags.TNT, StateFlag.State.ALLOW);
             }
         }.runTaskLater(Movecraft.getInstance(), (20L * Config.AssaultDelay));
         return true;

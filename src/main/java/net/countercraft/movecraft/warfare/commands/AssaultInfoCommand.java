@@ -1,8 +1,10 @@
 package net.countercraft.movecraft.warfare.commands;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.countercraft.movecraft.Movecraft;
@@ -45,16 +47,16 @@ public class AssaultInfoCommand implements CommandExecutor {
             player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("Insufficient Permissions"));
             return true;
         }
-        ApplicableRegionSet regions = Movecraft.getInstance().getWorldGuardPlugin().getRegionManager(player.getWorld()).getApplicableRegions(player.getLocation());
+        final LocalPlayer lp = Movecraft.getInstance().getWorldGuardPlugin().wrapPlayer(player);
+        ApplicableRegionSet regions = WorldGuard.getInstance().getPlatform().getRegionContainer().get(lp.getWorld()).getApplicableRegions(BukkitAdapter.adapt(player.getLocation()).toVector().toBlockPoint());
         if (regions.size() == 0) {
             player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("AssaultInfo - No Region Found"));
             return true;
         }
-        LocalPlayer lp = Movecraft.getInstance().getWorldGuardPlugin().wrapPlayer(player);
-        Map<String, ProtectedRegion> allRegions = Movecraft.getInstance().getWorldGuardPlugin().getRegionManager(player.getWorld()).getRegions();
+        Map<String, ProtectedRegion> allRegions = WorldGuard.getInstance().getPlatform().getRegionContainer().get(lp.getWorld()).getRegions();
         boolean foundOwnedRegion = false;
         for (ProtectedRegion iRegion : allRegions.values()) {
-            if (iRegion.isOwner(lp) && iRegion.getFlag(DefaultFlag.TNT) == StateFlag.State.DENY) {
+            if (iRegion.isOwner(lp) && iRegion.getFlag(Flags.TNT) == StateFlag.State.DENY) {
                 foundOwnedRegion = true;
             }
         }
@@ -68,7 +70,7 @@ public class AssaultInfoCommand implements CommandExecutor {
         for (ProtectedRegion tRegion : regions.getRegions()) {
             // a region can only be assaulted if it disables TNT, this is to prevent child regions or sub regions from being assaulted
             // regions with no owners can not be assaulted
-            if (tRegion.getFlag(DefaultFlag.TNT) != StateFlag.State.DENY || tRegion.getOwners().size() == 0)
+            if (tRegion.getFlag(Flags.TNT) != StateFlag.State.DENY || tRegion.getOwners().size() == 0)
                 continue ;
             for (Siege siege : MovecraftWarfare.getInstance().getSiegeManager().getSieges()) {
                 // siegable regions can not be assaulted

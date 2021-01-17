@@ -1,14 +1,18 @@
 package net.countercraft.movecraft.warfare.sign;
 
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.blocks.BaseBlock;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.world.block.BaseBlock;
+import com.sk89q.worldedit.world.block.BlockTypes;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.countercraft.movecraft.Movecraft;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.localisation.I18nSupport;
 import net.countercraft.movecraft.mapUpdater.MapUpdateManager;
-import net.countercraft.movecraft.mapUpdater.update.WorldEditUpdateCommand;
+import net.countercraft.movecraft.mapUpdater.update.WorldEdit7UpdateCommand;
 import net.countercraft.movecraft.warfare.config.Config;
 import net.countercraft.movecraft.warfare.utils.WarfareRepair;
 import org.bukkit.Bukkit;
@@ -32,7 +36,7 @@ public class RegionDamagedSign implements Listener {
         if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
             return;
         }
-        if (event.getClickedBlock().getType() != Material.WALL_SIGN){
+        if (event.getClickedBlock().getType() != Material.OAK_WALL_SIGN){
             return;
         }
         Sign sign = (Sign) event.getClickedBlock().getState();
@@ -54,7 +58,8 @@ public class RegionDamagedSign implements Listener {
         event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Assault - Repairing Region"));
         Movecraft.getInstance().getEconomy().withdrawPlayer(event.getPlayer(), damages);
         World world = event.getClickedBlock().getWorld();
-        ProtectedRegion aRegion = Movecraft.getInstance().getWorldGuardPlugin().getRegionManager(world).getRegion(regionName);
+        final LocalPlayer lp = Movecraft.getInstance().getWorldGuardPlugin().wrapPlayer(event.getPlayer());
+        ProtectedRegion aRegion = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).getRegion(regionName);
         for (String ownerName : owners) {
             if (ownerName.length() > 16) {
                 aRegion.getOwners().addPlayer(UUID.fromString(ownerName));
@@ -102,15 +107,15 @@ public class RegionDamagedSign implements Listener {
         for (int x = minx; x < maxx; x++) {
             for (int y = miny; y < maxy; y++) {
                 for (int z = minz; z < maxz; z++) {
-                    Vector ccloc = new Vector(x, y, z);
-                    BaseBlock bb = clipboard.getBlock(ccloc);
-                    if (!bb.isAir()) { // most blocks will be air, quickly move on to the next. This loop will run 16 million times, needs to be fast
-                        if (Config.AssaultDestroyableBlocks.contains(bb.getId())) {
+                    BlockVector3 ccloc = BlockVector3.at(x, y, z);
+                    BaseBlock bb = clipboard.getFullBlock(ccloc);
+                    if (bb.getBlockType() != BlockTypes.AIR || bb.getBlockType() != BlockTypes.CAVE_AIR || bb.getBlockType() != BlockTypes.VOID_AIR) { // most blocks will be air, quickly move on to the next. This loop will run 16 million times, needs to be fast
+                        if (Config.AssaultDestroyableBlocks.contains(BukkitAdapter.adapt(bb.getBlockType()))) {
                             if (!w.getChunkAt(x >> 4, z >> 4).isLoaded())
                                 w.loadChunk(x >> 4, z >> 4);
                             if (w.getBlockAt(x, y, z).isEmpty() || w.getBlockAt(x, y, z).isLiquid()) {
                                 MovecraftLocation moveloc = new MovecraftLocation(x, y, z);
-                                WorldEditUpdateCommand updateCommand = new WorldEditUpdateCommand(bb, w, moveloc, Material.getMaterial(bb.getType()), (byte) bb.getData());
+                                WorldEdit7UpdateCommand updateCommand = new WorldEdit7UpdateCommand(bb, w, moveloc, BukkitAdapter.adapt(bb.getBlockType()));
                                 MapUpdateManager.getInstance().scheduleUpdate(updateCommand);
                             }
                         }

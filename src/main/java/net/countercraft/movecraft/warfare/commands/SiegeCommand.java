@@ -1,5 +1,7 @@
 package net.countercraft.movecraft.warfare.commands;
 
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.countercraft.movecraft.Movecraft;
@@ -215,7 +217,8 @@ public class SiegeCommand implements TabExecutor {
             return true;
         }
         MovecraftLocation mid = siegeCraft.getHitBox().getMidPoint();
-        if(!Movecraft.getInstance().getWorldGuardPlugin().getRegionManager(player.getWorld()).getRegion(siege.getAttackRegion()).contains(mid.getX(), mid.getY(), mid.getZ())) {
+        final LocalPlayer lp = Movecraft.getInstance().getWorldGuardPlugin().wrapPlayer(player);
+        if (!WorldGuard.getInstance().getPlatform().getRegionContainer().get(lp.getWorld()).getRegion(siege.getAttackRegion()).contains(mid.getX(), mid.getY(), mid.getZ())) {
             player.sendMessage(MOVECRAFT_COMMAND_PREFIX + I18nSupport.getInternationalisedString("You must be piloting a craft in the siege region!"));
             return true;
         }
@@ -259,7 +262,8 @@ public class SiegeCommand implements TabExecutor {
 
     @Nullable
     private Siege getSiege(Player player, SiegeManager siegeManager) {
-        ApplicableRegionSet regions = Movecraft.getInstance().getWorldGuardPlugin().getRegionManager(player.getWorld()).getApplicableRegions(player.getLocation());
+        final LocalPlayer lp = Movecraft.getInstance().getWorldGuardPlugin().wrapPlayer(player);
+        ApplicableRegionSet regions = WorldGuard.getInstance().getPlatform().getRegionContainer().get(lp.getWorld()).getApplicableRegions(lp.getLocation().toVector().toBlockPoint());
         for (ProtectedRegion tRegion : regions.getRegions()) {
             for (Siege tempSiege : siegeManager.getSieges()) {
                 if (tRegion.getId().equalsIgnoreCase(tempSiege.getAttackRegion())) {
@@ -272,8 +276,9 @@ public class SiegeCommand implements TabExecutor {
 
     private long calcSiegeCost(Siege siege, SiegeManager siegeManager, Player player) {
         long cost = siege.getCost();
+        final LocalPlayer lp = Movecraft.getInstance().getWorldGuardPlugin().wrapPlayer(player);
         for (Siege tempSiege : siegeManager.getSieges()) {
-            ProtectedRegion tRegion = Movecraft.getInstance().getWorldGuardPlugin().getRegionManager(player.getWorld()).getRegion(tempSiege.getCaptureRegion());
+            final ProtectedRegion tRegion = WorldGuard.getInstance().getPlatform().getRegionContainer().get(lp.getWorld()).getRegion(tempSiege.getCaptureRegion());
             assert tRegion != null;
             if (tempSiege.isDoubleCostPerOwnedSiegeRegion() && tRegion.getOwners().contains(player.getUniqueId()))
                 cost *= 2;

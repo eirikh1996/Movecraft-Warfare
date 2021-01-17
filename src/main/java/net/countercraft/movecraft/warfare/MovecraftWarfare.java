@@ -85,10 +85,6 @@ public final class MovecraftWarfare extends JavaPlugin {
             Config.AssaultMemberWeightPercent = getConfig().getDouble("AssaultMemberWeightPercent", 1.0);
             Config.AssaultDestroyableBlocks = new HashSet<>();
             getConfig().getList("AssaultDestroyableBlocks").forEach( e -> {
-                if (e instanceof Integer) {
-                    Config.AssaultDestroyableBlocks.add(Material.getMaterial((Integer) e));
-                    return;
-                }
                 Config.AssaultDestroyableBlocks.add(Material.getMaterial(((String) e).toUpperCase()));
 
             });
@@ -148,18 +144,6 @@ public final class MovecraftWarfare extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-    }
-
-    @Override
-    public void saveDefaultConfig() {
-        if (configFile.exists())
-            return;
-        if (Config.IsLegacy) {
-            saveResource("config_legacy.yml", false);
-            new File(getDataFolder(), "config_legacy.yml").renameTo(configFile);
-            return;
-        }
-        super.saveDefaultConfig();
     }
 
     public AssaultManager getAssaultManager() {

@@ -1,7 +1,9 @@
 package net.countercraft.movecraft.warfare.assault;
 
+import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldguard.LocalPlayer;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.countercraft.movecraft.Movecraft;
@@ -87,9 +89,9 @@ public class AssaultUtils {
 
     public static boolean ownsRegions(Player p) {
         LocalPlayer lp = Movecraft.getInstance().getWorldGuardPlugin().wrapPlayer(p);
-        Map<String, ProtectedRegion> allRegions = Movecraft.getInstance().getWorldGuardPlugin().getRegionManager(p.getWorld()).getRegions();
+        Map<String, ProtectedRegion> allRegions = WorldGuard.getInstance().getPlatform().getRegionContainer().get(lp.getWorld()).getRegions();
         for (ProtectedRegion iRegion : allRegions.values()) {
-            if (iRegion.isOwner(lp) && iRegion.getFlag(DefaultFlag.TNT) == StateFlag.State.DENY) {
+            if (iRegion.isOwner(lp) && iRegion.getFlag(Flags.TNT) == StateFlag.State.DENY) {
                 return true;
             }
         }
@@ -104,7 +106,7 @@ public class AssaultUtils {
     public static boolean canAssault(@NotNull ProtectedRegion region) {
         // a region can only be assaulted if it disables TNT, this is to prevent child regions or sub regions from being assaulted
         // regions with no owners can not be assaulted
-        if (region.getFlag(DefaultFlag.TNT) != StateFlag.State.DENY || region.getOwners().size() == 0)
+        if (region.getFlag(Flags.TNT) != StateFlag.State.DENY || region.getOwners().size() == 0)
             return false;
 
         for (Siege siege : MovecraftWarfare.getInstance().getSiegeManager().getSieges()) {

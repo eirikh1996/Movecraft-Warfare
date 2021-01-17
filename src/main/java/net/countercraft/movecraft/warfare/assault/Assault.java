@@ -1,6 +1,6 @@
 package net.countercraft.movecraft.warfare.assault;
 
-import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.countercraft.movecraft.localisation.I18nSupport;
 import org.bukkit.*;
@@ -21,10 +21,11 @@ public class Assault {
     private long damages;
     private final long maxDamages;
     private final World world;
-    private final Vector minPos, maxPos;
+    private final BlockVector3 minPos;
+    private final BlockVector3 maxPos;
     private final AtomicReference<AssaultStage> stage = new AtomicReference<>(AssaultStage.PREPARATION);
 
-    public Assault(@NotNull ProtectedRegion region, Player starter, World world, long maxDamages, Vector minPos, Vector maxPos) {
+    public Assault(@NotNull ProtectedRegion region, Player starter, World world, long maxDamages, BlockVector3 minPos, BlockVector3 maxPos) {
         this.region = region;
         starterUUID = starter.getUniqueId();
         this.world = world;
@@ -34,11 +35,11 @@ public class Assault {
         this.maxPos = maxPos;
     }
 
-    public Vector getMaxPos() {
+    public BlockVector3 getMaxPos() {
         return maxPos;
     }
 
-    public Vector getMinPos() {
+    public BlockVector3 getMinPos() {
         return minPos;
     }
 
@@ -137,7 +138,7 @@ public class Assault {
         world.getBlockAt(beaconX + 2, beaconY + 2, beaconZ + 2).setType(Material.BEACON);
         world.getBlockAt(beaconX + 2, beaconY + 3, beaconZ + 2).setType(Material.BEDROCK);
         // finally the sign on the beacon
-        world.getBlockAt(beaconX + 2, beaconY + 3, beaconZ + 1).setType(Material.WALL_SIGN);
+        world.getBlockAt(beaconX + 2, beaconY + 3, beaconZ + 1).setType(Material.OAK_WALL_SIGN);
         Sign s = (Sign) world.getBlockAt(beaconX + 2, beaconY + 3, beaconZ + 1).getState();
         s.setLine(0, ChatColor.RED + I18nSupport.getInternationalisedString("Region Damaged"));
         s.setLine(1, I18nSupport.getInternationalisedString("Region Name") + ":" + getRegionName());

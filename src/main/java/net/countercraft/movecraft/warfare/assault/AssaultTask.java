@@ -1,6 +1,6 @@
 package net.countercraft.movecraft.warfare.assault;
 
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import net.countercraft.movecraft.localisation.I18nSupport;
 import net.countercraft.movecraft.warfare.MovecraftWarfare;
@@ -37,7 +37,7 @@ public class AssaultTask extends BukkitRunnable {
         assault.getStage().set(AssaultStage.INACTIVE);
         Bukkit.getServer().broadcastMessage(String.format(I18nSupport.getInternationalisedString("Assault - Assault Successful"), assault.getRegionName()));
         Bukkit.getPluginManager().callEvent(new AssaultWinEvent(assault));
-        assault.getRegion().setFlag(DefaultFlag.TNT, StateFlag.State.DENY);
+        assault.getRegion().setFlag(Flags.TNT, StateFlag.State.DENY);
 
         if(!assault.makeBeacon())
             Bukkit.getServer().broadcastMessage(ERROR_PREFIX + String.format(I18nSupport.getInternationalisedString("Assault - Beacon Placement Failed"), this));
@@ -51,7 +51,7 @@ public class AssaultTask extends BukkitRunnable {
         assault.getStage().set(AssaultStage.INACTIVE);
         Bukkit.getServer().broadcastMessage(String.format(I18nSupport.getInternationalisedString("Assault - Assault Failed"), assault.getRegionName()));
         Bukkit.getPluginManager().callEvent(new AssaultLoseEvent(assault));
-        assault.getRegion().setFlag(DefaultFlag.TNT, StateFlag.State.DENY);
+        assault.getRegion().setFlag(Flags.TNT, StateFlag.State.DENY);
 
         // repair the damages that have occurred so far
         if (!new RegionDamagedSign().repairRegion(assault.getWorld(), assault.getRegionName()))
