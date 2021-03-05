@@ -23,7 +23,7 @@ public class AssaultTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (assault.getRunning().get())
+        if (!assault.getRunning().get())
             //in-case the server is lagging and a new assault task is started at the exact time on ends
             return;
         if (assault.getDamages() >= assault.getMaxDamages())

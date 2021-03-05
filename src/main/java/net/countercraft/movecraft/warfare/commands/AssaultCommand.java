@@ -101,7 +101,7 @@ public class AssaultCommand implements CommandExecutor {
 
         final Long taskMaxDamages = (long) AssaultUtils.getMaxDamages(region);
 
-        Assault assault = new Assault(region, player, player.getWorld(), taskMaxDamages, min, max);
+        Assault assault = new Assault(region, player, player.getWorld(), System.currentTimeMillis()+(Config.AssaultDelay * 1000L), taskMaxDamages, min, max);
 
         AssaultPreStartEvent assaultPreStartEvent = new AssaultPreStartEvent(assault);
         Bukkit.getPluginManager().callEvent(assaultPreStartEvent);

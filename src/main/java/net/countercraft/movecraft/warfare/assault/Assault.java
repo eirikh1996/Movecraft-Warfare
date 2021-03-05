@@ -37,11 +37,11 @@ public class Assault {
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicInteger savedCorrectly = new AtomicInteger(SavedState.UNSAVED);
 
-    public Assault(@NotNull ProtectedRegion region, Player starter, World world, long maxDamages, BlockVector3 minPos, BlockVector3 maxPos) {
+    public Assault(@NotNull ProtectedRegion region, Player starter, World world, long startTime, long maxDamages, BlockVector3 minPos, BlockVector3 maxPos) {
         this.region = region;
         starterUUID = starter.getUniqueId();
         this.world = world;
-        this.startTime = 0L;
+        this.startTime = startTime;
         this.maxDamages = maxDamages;
         this.minPos = minPos;
         this.maxPos = maxPos;
