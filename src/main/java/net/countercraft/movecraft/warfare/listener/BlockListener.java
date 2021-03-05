@@ -1,9 +1,7 @@
 package net.countercraft.movecraft.warfare.listener;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import net.countercraft.movecraft.Movecraft;
-import net.countercraft.movecraft.localisation.I18nSupport;
+import net.countercraft.movecraft.warfare.localisation.I18nSupport;
 import net.countercraft.movecraft.warfare.MovecraftWarfare;
 import net.countercraft.movecraft.warfare.assault.Assault;
 import net.countercraft.movecraft.warfare.assault.AssaultStage;
@@ -34,7 +32,7 @@ public class BlockListener implements Listener {
         }
 
         for (final Assault assault : assaults) {
-            if (assault.getStage().get() != AssaultStage.IN_PROGRESS)
+            if (!assault.getRunning().get())
                 continue;
             Iterator<Block> i = e.blockList().iterator();
             while (i.hasNext()) {
@@ -53,7 +51,7 @@ public class BlockListener implements Listener {
                         b.getLocation().getBlockX() > max.getBlockX() ||
                         b.getLocation().getBlockZ() < min.getBlockZ() ||
                         b.getLocation().getBlockZ() > max.getBlockZ() ||
-                        !Config.AssaultDestroyableBlocks.contains(b.getTypeId()) ||
+                        !Config.AssaultDestroyableBlocks.contains(b.getType()) ||
                         Arrays.binarySearch(fragileBlocks, b.getRelative(BlockFace.SOUTH).getTypeId()) >= 0 ||
                         Arrays.binarySearch(fragileBlocks, b.getRelative(BlockFace.DOWN).getTypeId()) >= 0 ||
                         Arrays.binarySearch(fragileBlocks, b.getRelative(BlockFace.UP).getTypeId()) >= 0 ||

@@ -1,16 +1,21 @@
 package net.countercraft.movecraft.warfare;
 
 import net.countercraft.movecraft.Movecraft;
+import net.countercraft.movecraft.repair.MovecraftRepair;
+import net.countercraft.movecraft.warfare.commands.AssaultRepairCommand;
 import net.countercraft.movecraft.warfare.listener.BlockListener;
 import net.countercraft.movecraft.warfare.assault.AssaultManager;
 import net.countercraft.movecraft.warfare.commands.AssaultCommand;
 import net.countercraft.movecraft.warfare.commands.AssaultInfoCommand;
 import net.countercraft.movecraft.warfare.commands.SiegeCommand;
 import net.countercraft.movecraft.warfare.config.Config;
+import net.countercraft.movecraft.warfare.listener.TypesReloadedListener;
+import net.countercraft.movecraft.warfare.localisation.I18nSupport;
 import net.countercraft.movecraft.warfare.siege.Siege;
 import net.countercraft.movecraft.warfare.siege.SiegeManager;
 import net.countercraft.movecraft.warfare.sign.RegionDamagedSign;
 import net.countercraft.movecraft.warfare.utils.WarfareRepair;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
@@ -37,16 +42,13 @@ public final class MovecraftWarfare extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        configFile = new File(getDataFolder(), "config.yml");
-        if(instance != null)
-            return;
-
         instance = this;
 
         //final String packageName = getServer().getClass().getPackage().getName();
         //Config.IsLegacy = Integer.parseInt(packageName.substring(packageName.lastIndexOf(".") + 1).split("_")[1]) <= 12;
 
         saveDefaultConfig();
+
         // TODO other languages
         String[] languages = {"en"};
         for (String s : languages) {
@@ -54,17 +56,18 @@ public final class MovecraftWarfare extends JavaPlugin {
                 this.saveResource("localisation/mcwlang_"+ s +".properties", false);
             }
         }
-
         Config.Locale = getConfig().getString("Locale", "en");
+        I18nSupport.init();
+
 
         Config.AssaultEnable = getConfig().getBoolean("AssaultEnable", false);
         Config.SiegeEnable = getConfig().getBoolean("SiegeEnable", false);
 
-        if(Movecraft.getInstance().getWorldGuardPlugin() == null || Movecraft.getInstance().getEconomy() == null) {
+        if(Movecraft.getInstance().getWorldGuardPlugin() == null || MovecraftRepair.getInstance().getEconomy() == null) {
             Config.AssaultEnable = false;
             Config.SiegeEnable = false;
         }
-        if(Movecraft.getInstance().getWorldEditPlugin() == null) {
+        if(MovecraftRepair.getInstance() == null) {
             Config.AssaultEnable = false;
         }
 
@@ -83,17 +86,20 @@ public final class MovecraftWarfare extends JavaPlugin {
             Config.AssaultMaxBalance = getConfig().getDouble("AssaultMaxBalance", 5000000);
             Config.AssaultOwnerWeightPercent = getConfig().getDouble("AssaultOwnerWeightPercent", 1.0);
             Config.AssaultMemberWeightPercent = getConfig().getDouble("AssaultMemberWeightPercent", 1.0);
+            Config.AssaultChunkSavePerTick = getConfig().getInt("AssaultChunkSavePerTick", 1);
+            Config.AssaultChunkSavePeriod = getConfig().getInt("AssaultChunkSavePeriod", 1);
+            Config.AssaultChunkRepairPerTick = getConfig().getInt("AssaultChunkRepairPerTick", 1);
+            Config.AssaultChunkRepairPeriod = getConfig().getInt("AssaultChunkSavePeriod", 1);
             Config.AssaultDestroyableBlocks = new HashSet<>();
-            getConfig().getList("AssaultDestroyableBlocks").forEach( e -> {
-                if (e instanceof Integer) {
-                    Config.AssaultDestroyableBlocks.add(Material.getMaterial((Integer) e));
-                    return;
+            for(String s : getConfig().getStringList("AssaultDestroyableBlocks")) {
+                Material m = Material.getMaterial(s.toUpperCase());
+                if(m == null) {
+                    getLogger().info("Failed to load AssaultDestroyableBlock: '" + s + "'");
                 }
-                Config.AssaultDestroyableBlocks.add(Material.getMaterial(((String) e).toUpperCase()));
-
-            });
-            this.getCommand("assaultinfo").setExecutor(new AssaultInfoCommand());
-            this.getCommand("assault").setExecutor(new AssaultCommand());
+                else {
+                    Config.AssaultDestroyableBlocks.add(m);
+                }
+            }
 
             getServer().getPluginManager().registerEvents(new BlockListener(), this);
 
@@ -141,8 +147,14 @@ public final class MovecraftWarfare extends JavaPlugin {
             }
             siegeManager.runTaskTimerAsynchronously(this, 0, 20);
 
-            this.getCommand("siege").setExecutor(new SiegeCommand());
+            getServer().getPluginManager().registerEvents(new TypesReloadedListener(), this);
         }
+
+        this.getCommand("assaultinfo").setExecutor(new AssaultInfoCommand());
+        this.getCommand("assault").setExecutor(new AssaultCommand());
+        this.getCommand("assaultrepair").setExecutor(new AssaultRepairCommand());
+
+        this.getCommand("siege").setExecutor(new SiegeCommand());
     }
 
     @Override
@@ -168,5 +180,9 @@ public final class MovecraftWarfare extends JavaPlugin {
 
     public SiegeManager getSiegeManager() {
         return siegeManager;
+    }
+
+    public void reloadTypes() {
+        // Currently nothing is needed here, since craft types are referred to as strings.
     }
 }

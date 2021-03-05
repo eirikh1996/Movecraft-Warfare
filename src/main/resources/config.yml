@@ -12,55 +12,25 @@ AssaultRequiredDefendersOnline: 2 # At least this many members or owners must be
 AssaultRequiredOwnersOnline: 1 # At least this many owners must be online for the region to be assaulted, set to 0 to ignore
 AssaultOwnerWeightPercent: 1.0 # Percentage of each Owner's balance (under the maximum) to include in the total cost & damages (Can be greater than 100)
 AssaultMemberWeightPercent: 1.0 # Percentage of each Member's balance (under the maximum) to include in the total cost & damages (Can be greater than 100)
+AssaultChunkSavePerTick: 1 # Chunks saved per run.  Reduce this if the server lags when an assault is started.
+AssaultChunkSavePeriod: 1 # Period between chunk saves (per assault).  Increase this if the server lags when an assault is started.
+AssaultChunkRepairPerTick: 1 # Chunks repaired per run.  Reduce this if the server lags when an assaulted region is repaired.
+AssaultChunkRepairPeriod: 1 # Period between chunk repairs (per assault).  Increase this if the server lags when an assault is started.
 AssaultDestroyableBlocks: # these blocks will be removed if destroyed in assault. Other blocks will not be removed, but still count for damages. Don't include craft flyblocks, or blocks with metadata, or you can have issues.
   - STONE
-  - DIORITE
-  - POLISHED_DIORITE
-  - GRANITE
-  - POLISHED_GRANITE
-  - ANDESITE
-  - POLISHED_ANDESITE
   - GRASS_BLOCK
   - DIRT
-  - COARSE_DIRT
-  - PODZOL
   - COBBLESTONE
   - SAND
-  - RED_SAND
   - GRAVEL
-  - GOLD_ORE
   - IRON_ORE
+  - COAL_ORE
   - OAK_LEAVES
-  - JUNGLE_LEAVES
-  - BIRCH_LEAVES
-  - SPRUCE_LEAVES
   - SPONGE
-  - WET_SPONGE
   - SANDSTONE
-  - SMOOTH_SANDSTONE
-  - CUT_SANDSTONE
-  - CHISELED_SANDSTONE
-  - GRASS
-  - FERN
-  - TALL_GRASS
-  - LARGE_FERN
+  - DEAD_BUSH
   - DANDELION
   - POPPY
-  - BLUE_ORCHID
-  - ALLIUM
-  - AZURE_BLUET
-  - RED_TULIP
-  - ORANGE_TULIP
-  - WHITE_TULIP
-  - PINK_TULIP
-  - OXEYE_DAISY
-  - CORNFLOWER
-  - LILY_OF_THE_VALLEY
-  - WITHER_ROSE
-  - SUNFLOWER
-  - LILAC
-  - ROSE_BUSH
-  - PEONY
   - BROWN_MUSHROOM
   - RED_MUSHROOM
   - TNT
@@ -73,37 +43,19 @@ AssaultDestroyableBlocks: # these blocks will be removed if destroyed in assault
   - SNOW_BLOCK
   - CACTUS
   - STONE_BRICKS
-  - CRACKED_STONE_BRICKS
-  - MOSSY_STONE_BRICKS
-  - CHISELED_STONE_BRICKS
   - BRICK_STAIRS
-  - STONE_STAIRS
-  - DIORITE_STAIRS
-  - POLISHED_DIORITE_STAIRS
-  - ANDESITE_STAIRS
-  - POLISHED_ANDESITE_STAIRS
-  - GRANITE_STAIRS
-  - POLISHED_GRANITE_STAIRS
   - SANDSTONE_STAIRS
-  - SMOOTH_SANDSTONE_STAIRS
   - EMERALD_ORE
-  - DARK_OAK_LEAVES
   - ACACIA_LEAVES
   - ACACIA_LOG
-  - DARK_OAK_LOG
   - ACACIA_STAIRS
-  - DARK_OAK_STAIRS
   - PRISMARINE
-  - PRISMARINE_STAIRS
-  - DARK_PRISMARINE
-  - DARK_PRISMARINE_STAIRS
   - SEA_LANTERN
   - PACKED_ICE
+  - SUNFLOWER
   - RED_SANDSTONE
-  - RED_SMOOTH_SANDSTONE
   - RED_SANDSTONE_STAIRS
-  - RED_SMOOTH_SANDSTONE_STAIRS
-  - SANDSTONE_SLAB
-  - ICE
+  - RED_SANDSTONE_SLAB
+  - FROSTED_ICE
 SiegeEnable: true
 SiegeTaskSeconds: 600 # Seconds per siege message, defaults to 600 (10 minutes)
