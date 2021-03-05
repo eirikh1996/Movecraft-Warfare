@@ -1,23 +1,23 @@
 package net.countercraft.movecraft.warfare.events;
 
 import net.countercraft.movecraft.localisation.I18nSupport;
-import org.bukkit.event.Cancellable;
-import org.jetbrains.annotations.NotNull;
-import org.bukkit.event.HandlerList;
 import net.countercraft.movecraft.warfare.siege.Siege;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Fires when a Siege starts.
+ * Fires after Siege validation, before the Siege Preparation stage.
  */
-public class SiegeStartEvent extends SiegeEvent implements Cancellable {
+public class SiegePreStartEvent extends SiegeEvent implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean cancelled;
     private String cancelReason;
 
-    public SiegeStartEvent(@NotNull Siege siege) {
+    public SiegePreStartEvent(@NotNull Siege siege) {
         super(siege);
         cancelled = false;
-        cancelReason = I18nSupport.getInternationalisedString("Siege - Default Siege Start Cancel Reason");
+        cancelReason = I18nSupport.getInternationalisedString("Event - Default Cancel Reason");
     }
 
     @Override
@@ -25,12 +25,6 @@ public class SiegeStartEvent extends SiegeEvent implements Cancellable {
         return HANDLERS;
     }
 
-    /**
-     * Gets the cancellation state of this event. A cancelled event will not
-     * be executed in the server, but will still pass to other plugins
-     *
-     * @return true if this event is cancelled
-     */
     @Override
     public boolean isCancelled() {
         return cancelled;

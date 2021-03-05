@@ -1,14 +1,16 @@
 package net.countercraft.movecraft.warfare.assault;
 
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.countercraft.movecraft.warfare.MovecraftWarfare;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /*
- * Procces assaults every 20 ticks
+ * Process assaults every 20 ticks
  */
 public class AssaultManager extends BukkitRunnable {
     private final List<Assault> assaults = new CopyOnWriteArrayList<>();
@@ -25,13 +27,16 @@ public class AssaultManager extends BukkitRunnable {
         }
     }
 
-    public void addAssault(Assault assault) {
-        assault.setStartTime(System.currentTimeMillis());
-        assault.getStage().set(AssaultStage.IN_PROGRESS);
-        assaults.add(assault);
-    }
-
     public List<Assault> getAssaults() {
         return assaults;
+    }
+
+    @Nullable
+    public Assault getAssault(@NotNull ProtectedRegion region) {
+        for(Assault assault : assaults) {
+            if(assault.getRegion().equals(region))
+                return assault;
+        }
+        return null;
     }
 }

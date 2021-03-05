@@ -7,6 +7,7 @@ import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.countercraft.movecraft.Movecraft;
+import net.countercraft.movecraft.repair.MovecraftRepair;
 import net.countercraft.movecraft.warfare.MovecraftWarfare;
 import net.countercraft.movecraft.warfare.config.Config;
 import net.countercraft.movecraft.warfare.siege.Siege;
@@ -71,7 +72,7 @@ public class AssaultUtils {
         for (UUID playerID : players) {
             OfflinePlayer offP = Bukkit.getOfflinePlayer(playerID);
             if (offP.getName() != null)
-                total += Math.min(Movecraft.getInstance().getEconomy().getBalance(offP), Config.AssaultMaxBalance);
+                total += Math.min(MovecraftRepair.getInstance().getEconomy().getBalance(offP), Config.AssaultMaxBalance);
         }
         return total * (Config.AssaultOwnerWeightPercent / 100.0);
     }
@@ -82,7 +83,7 @@ public class AssaultUtils {
         for (UUID playerID : players) {
             OfflinePlayer offP = Bukkit.getOfflinePlayer(playerID);
             if (offP.getName() != null)
-                total += Math.min(Movecraft.getInstance().getEconomy().getBalance(offP), Config.AssaultMaxBalance);
+                total += Math.min(MovecraftRepair.getInstance().getEconomy().getBalance(offP), Config.AssaultMaxBalance);
         }
         return total * (Config.AssaultMemberWeightPercent / 100.0);
     }
@@ -109,10 +110,12 @@ public class AssaultUtils {
         if (region.getFlag(Flags.TNT) != StateFlag.State.DENY || region.getOwners().size() == 0)
             return false;
 
-        for (Siege siege : MovecraftWarfare.getInstance().getSiegeManager().getSieges()) {
-            // siegable regions can not be assaulted
-            if (region.getId().equalsIgnoreCase(siege.getAttackRegion()) || region.getId().equalsIgnoreCase(siege.getCaptureRegion())) {
-                return false;
+        if(Config.SiegeEnable) {
+            for (Siege siege : MovecraftWarfare.getInstance().getSiegeManager().getSieges()) {
+                // siegable regions can not be assaulted
+                if (region.getId().equalsIgnoreCase(siege.getAttackRegion()) || region.getId().equalsIgnoreCase(siege.getCaptureRegion())) {
+                    return false;
+                }
             }
         }
 

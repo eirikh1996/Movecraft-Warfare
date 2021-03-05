@@ -1,16 +1,24 @@
 package net.countercraft.movecraft.warfare.events;
 
+import net.countercraft.movecraft.localisation.I18nSupport;
 import net.countercraft.movecraft.warfare.assault.Assault;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+
+/**
+ * Fires when an assault starts.
+ */
 public class AssaultStartEvent extends AssaultEvent implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean cancelled;
+    private String cancelReason;
 
     public AssaultStartEvent(@NotNull Assault assault) {
         super(assault);
+        cancelled = false;
+        cancelReason = I18nSupport.getInternationalisedString("Assault - Default Assault Begin Cancel Reason");
     }
 
     @Override
@@ -18,25 +26,31 @@ public class AssaultStartEvent extends AssaultEvent implements Cancellable {
         return HANDLERS;
     }
 
-    /**
-     * Gets the cancellation state of this event. A cancelled event will not
-     * be executed in the server, but will still pass to other plugins
-     *
-     * @return true if this event is cancelled
-     */
+
     @Override
     public boolean isCancelled() {
         return cancelled;
     }
 
-    /**
-     * Sets the cancellation state of this event. A cancelled event will not
-     * be executed in the server, but will still pass to other plugins.
-     *
-     * @param cancel true if you wish to cancel this event
-     */
+    public void setCancelled(boolean newState, @NotNull String cancelReason) {
+        setCancelled(newState);
+        this.cancelReason = cancelReason;
+    }
+
     @Override
-    public void setCancelled(boolean cancel) {
-        cancelled = cancel;
+    public void setCancelled(boolean newState) {
+        cancelled = newState;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 }

@@ -1,5 +1,5 @@
 name: Movecraft-Warfare
-depend: [Movecraft, WorldGuard, WorldEdit]
+depend: [Movecraft, Movecraft-Repair, WorldGuard, WorldEdit]
 version: ${project.version}
 api-version: 1.13
 description: Movecraft Warfare Addon
@@ -16,3 +16,6 @@ commands:
   assault:
     description: Begins an Assault on the specified region
     usage: /assault <regionname>
+  assaultrepair:
+    description: Repairs a region using admin magic
+    usage: /assaultrepair

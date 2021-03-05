@@ -2,28 +2,40 @@ package net.countercraft.movecraft.warfare.assault;
 
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import net.countercraft.movecraft.localisation.I18nSupport;
+import net.countercraft.movecraft.warfare.localisation.I18nSupport;
+import net.countercraft.movecraft.warfare.sign.RegionDamagedSign;
 import org.bukkit.*;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Represents an assault
  */
 public class Assault {
+    public AtomicBoolean getRunning() {
+        return running;
+    }
+
+    public static class SavedState {
+        public static final int UNSAVED = 0;
+        public static final int SAVED = 1;
+        public static final int FAILED = -1;
+    }
+
     private final @NotNull ProtectedRegion region;
     private final UUID starterUUID;
     private long startTime;
     private long damages;
     private final long maxDamages;
     private final World world;
-    private final BlockVector3 minPos;
-    private final BlockVector3 maxPos;
-    private final AtomicReference<AssaultStage> stage = new AtomicReference<>(AssaultStage.PREPARATION);
+    private final BlockVector3 minPos, maxPos;
+    private final AtomicBoolean running = new AtomicBoolean(true);
+    private final AtomicInteger savedCorrectly = new AtomicInteger(SavedState.UNSAVED);
 
     public Assault(@NotNull ProtectedRegion region, Player starter, World world, long maxDamages, BlockVector3 minPos, BlockVector3 maxPos) {
         this.region = region;
@@ -81,10 +93,6 @@ public class Assault {
         return region.getId();
     }
 
-    public AtomicReference<AssaultStage> getStage() {
-        return stage;
-    }
-
     public boolean makeBeacon() {
         //first, find a position for the repair beacon
         int beaconX = minPos.getBlockX();
@@ -140,11 +148,15 @@ public class Assault {
         // finally the sign on the beacon
         world.getBlockAt(beaconX + 2, beaconY + 3, beaconZ + 1).setType(Material.OAK_WALL_SIGN);
         Sign s = (Sign) world.getBlockAt(beaconX + 2, beaconY + 3, beaconZ + 1).getState();
-        s.setLine(0, ChatColor.RED + I18nSupport.getInternationalisedString("Region Damaged"));
+        s.setLine(0, RegionDamagedSign.HEADER);
         s.setLine(1, I18nSupport.getInternationalisedString("Region Name") + ":" + getRegionName());
         s.setLine(2, I18nSupport.getInternationalisedString("Damages") + ":" + getMaxDamages());
         s.setLine(3, I18nSupport.getInternationalisedString("Region Owner") + ":" + AssaultUtils.getRegionOwnerList(region));
         s.update();
         return true;
+    }
+
+    public AtomicInteger getSavedCorrectly() {
+        return savedCorrectly;
     }
 }
